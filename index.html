@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Math School Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-badge">∑</div>
+        <div>
+          <h1>Math School Platform</h1>
+          <p>5 тем · multiple choice · 2 попытки</p>
+        </div>
+      </div>
+
+      <div id="userArea" class="user-area hidden">
+        <button id="profileBtn" class="profile-btn" title="Профиль">
+          <span id="profileInitial">U</span>
+        </button>
+        <div id="profileMenu" class="profile-menu hidden">
+          <div class="profile-menu-head">
+            <strong id="menuRealName">—</strong>
+            <span id="menuEmail">—</span>
+          </div>
+          <div class="profile-menu-body">
+            <div><span>Username:</span> <b id="menuUsername">—</b></div>
+            <div><span>Роль:</span> <b id="menuRole">student</b></div>
+          </div>
+          <button id="logoutBtn" class="danger-btn">Выйти</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-grid">
+      <section class="left-panel">
+        <div id="authCard" class="card auth-card">
+          <div class="tabs">
+            <button id="loginTab" class="tab active">Вход</button>
+            <button id="registerTab" class="tab">Регистрация</button>
+          </div>
+
+          <form id="loginForm" class="auth-form">
+            <label>
+              <span>Email</span>
+              <input type="email" id="loginEmail" placeholder="you@example.com" required />
+            </label>
+            <label>
+              <span>Пароль</span>
+              <input type="password" id="loginPassword" placeholder="********" required />
+            </label>
+            <button class="primary-btn" type="submit">Войти</button>
+          </form>
+
+          <form id="registerForm" class="auth-form hidden">
+            <label>
+              <span>Username</span>
+              <input type="text" id="regUsername" placeholder="aivar_09" minlength="3" required />
+            </label>
+            <label>
+              <span>Real name</span>
+              <input type="text" id="regRealName" placeholder="Айвар Тынчтыкбеков" minlength="2" required />
+            </label>
+            <label>
+              <span>Email</span>
+              <input type="email" id="regEmail" placeholder="you@example.com" required />
+            </label>
+            <label>
+              <span>Пароль</span>
+              <input type="password" id="regPassword" placeholder="минимум 6 символов" minlength="6" required />
+            </label>
+            <button class="primary-btn" type="submit">Создать аккаунт</button>
+            <p class="hint">После регистрации пользователю придет письмо для подтверждения email.</p>
+          </form>
+        </div>
+
+        <div id="progressCard" class="card stats-card hidden">
+          <div class="section-head">
+            <h2>Мой прогресс</h2>
+            <span id="progressBadge" class="badge">0 / 0</span>
+          </div>
+          <div class="stats-row">
+            <div class="stat-box">
+              <span>Решено</span>
+              <strong id="solvedCount">0</strong>
+            </div>
+            <div class="stat-box">
+              <span>Провалено</span>
+              <strong id="failedCount">0</strong>
+            </div>
+            <div class="stat-box">
+              <span>Всего</span>
+              <strong id="allCount">0</strong>
+            </div>
+          </div>
+          <p class="hint">В каждой задаче только 2 попытки. После второй ошибки показывается правильный ответ.</p>
+        </div>
+
+        <div id="adminCard" class="card hidden">
+          <div class="section-head">
+            <h2>Admin panel</h2>
+            <button id="refreshAdminBtn" class="ghost-btn">Обновить</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Ученик</th>
+                  <th>Email</th>
+                  <th>Решено</th>
+                  <th>Провалено</th>
+                  <th>Всего попыток</th>
+                </tr>
+              </thead>
+              <tbody id="adminTableBody">
+                <tr><td colspan="5" class="muted">Пока нет данных</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="right-panel">
+        <div id="guestHero" class="card hero-card">
+          <h2>Платформа по математике</h2>
+          <p>
+            После входа ученик увидит 5 тем. Внутри каждой темы задачи идут по порядку.
+            На каждую задачу дается только 2 попытки.
+          </p>
+          <ul class="feature-list">
+            <li>Регистрация и вход по email</li>
+            <li>Подтверждение почты</li>
+            <li>Сохранение прогресса</li>
+            <li>Профиль справа сверху</li>
+            <li>Просмотр результатов учеников для admin</li>
+          </ul>
+        </div>
+
+        <div id="topicsCard" class="card hidden">
+          <div class="section-head">
+            <h2>Темы</h2>
+            <span class="badge">5 разделов</span>
+          </div>
+          <div id="topicsGrid" class="topics-grid"></div>
+        </div>
+
+        <div id="questionCard" class="card hidden">
+          <div class="question-head">
+            <button id="backToTopicsBtn" class="ghost-btn">← Назад к темам</button>
+            <div>
+              <div id="questionMeta" class="question-meta">Тема · Задача</div>
+              <h2 id="questionTitle">Задача</h2>
+            </div>
+          </div>
+
+          <div id="questionProgressBar" class="progress-line">
+            <div id="questionProgressFill"></div>
+          </div>
+
+          <div id="questionText" class="question-text"></div>
+
+          <div id="optionsWrap" class="options-wrap"></div>
+
+          <div class="question-actions">
+            <button id="submitAnswerBtn" class="primary-btn">Проверить ответ</button>
+            <button id="nextQuestionBtn" class="ghost-btn hidden">Следующая задача →</button>
+          </div>
+
+          <div id="questionFeedback" class="feedback hidden"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
