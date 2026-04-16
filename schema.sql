@@ -78,7 +78,7 @@ for select
 to authenticated
 using (
   auth.uid() = id
-  or auth.jwt() ->> 'email' = 'admin@example.com'
+  or auth.jwt() ->> 'email' = 'ajvarovajvar6@gmail.com'
 );
 
 drop policy if exists "profiles_insert_self" on public.profiles;
