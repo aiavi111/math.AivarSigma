@@ -4,23 +4,21 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
  * =========================
  * 1) ВСТАВЬ СВОИ ДАННЫЕ
  * =========================
- * Project URL и anon key возьми в Supabase:
- * Project Settings -> Data API
  */
-const SUPABASE_URL = 'https://iszboxtemwkeleklmmgp.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_fsKF8wnorlEEcexl5WSpnQ_HTMSVNb_';
+const SUPABASE_URL = 'PASTE_YOUR_SUPABASE_URL_HERE';
+const SUPABASE_ANON_KEY = 'PASTE_YOUR_SUPABASE_ANON_KEY_HERE';
 
 /**
- * Укажи URL сайта после деплоя.
- * Для GitHub Pages это обычно:
- * https://USERNAME.github.io/REPO_NAME/
- *
- * Для Vercel:
- * https://your-project.vercel.app/
+ * URL сайта после деплоя
  */
-const SITE_URL = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/') ;
+const SITE_URL =
+  window.location.origin +
+  window.location.pathname.replace(/\/[^/]*$/, '/');
 
-if (SUPABASE_URL.includes('PASTE_') || SUPABASE_ANON_KEY.includes('PASTE_')) {
+if (
+  SUPABASE_URL.includes('PASTE_') ||
+  SUPABASE_ANON_KEY.includes('PASTE_')
+) {
   alert('Сначала открой script.js и вставь SUPABASE_URL и SUPABASE_ANON_KEY.');
 }
 
@@ -78,11 +76,30 @@ const menuEmail = document.getElementById('menuEmail');
 const menuUsername = document.getElementById('menuUsername');
 const menuRole = document.getElementById('menuRole');
 
+// =========================
+// HELPERS
+// =========================
 function showToast(message) {
   const toast = document.getElementById('toast');
   toast.textContent = message;
   toast.classList.remove('hidden');
   setTimeout(() => toast.classList.add('hidden'), 3500);
+}
+
+function showFeedback(type, text) {
+  questionFeedback.className = `feedback ${type}`;
+  questionFeedback.textContent = text;
+  questionFeedback.classList.remove('hidden');
+}
+
+function escapeHtml(value = '') {
+  const text = String(value ?? '');
+  return text
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
 }
 
 function setActiveTab(tab) {
@@ -99,6 +116,26 @@ function setActiveTab(tab) {
   }
 }
 
+function showTopicsView() {
+  questionCard.classList.add('hidden');
+  topicsCard.classList.remove('hidden');
+  renderTopics();
+}
+
+function colorizeOptions(correctKey, selectedKey) {
+  document.querySelectorAll('.option').forEach(el => {
+    const key = el.dataset.option;
+    el.classList.remove('selected');
+    if (correctKey && key === correctKey) el.classList.add('correct');
+    if (selectedKey && key === selectedKey && key !== correctKey) {
+      el.classList.add('wrong');
+    }
+  });
+}
+
+// =========================
+// EVENTS
+// =========================
 loginTab.addEventListener('click', () => setActiveTab('login'));
 registerTab.addEventListener('click', () => setActiveTab('register'));
 
@@ -106,7 +143,7 @@ profileBtn.addEventListener('click', () => {
   profileMenu.classList.toggle('hidden');
 });
 
-document.addEventListener('click', (e) => {
+document.addEventListener('click', e => {
   if (!profileBtn.contains(e.target) && !profileMenu.contains(e.target)) {
     profileMenu.classList.add('hidden');
   }
@@ -132,7 +169,7 @@ async function handleRegister(e) {
   const password = document.getElementById('regPassword').value;
 
   try {
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -210,7 +247,10 @@ supabase.auth.onAuthStateChange(async (_event, session) => {
 window.addEventListener('load', bootstrap);
 
 async function bootstrap() {
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session }
+  } = await supabase.auth.getSession();
+
   state.session = session || null;
 
   if (!state.session?.user) {
@@ -230,6 +270,7 @@ async function bootstrap() {
 
 async function ensureProfile() {
   const user = state.session.user;
+
   const { data, error } = await supabase
     .from('profiles')
     .select('*')
@@ -243,8 +284,15 @@ async function ensureProfile() {
   }
 
   if (!data) {
-    const username = user.user_metadata?.username || user.email?.split('@')[0] || 'user';
-    const realName = user.user_metadata?.real_name || user.email || 'Student';
+    const username =
+      user.user_metadata?.username ||
+      user.email?.split('@')[0] ||
+      'user';
+
+    const realName =
+      user.user_metadata?.real_name ||
+      user.email ||
+      'Student';
 
     try {
       await upsertProfile(user.id, {
@@ -297,10 +345,12 @@ async function loadUserProgress() {
   }
 
   state.topicProgress = new Map();
-  const progressByQuestion = new Map((data || []).map(row => [row.question_id, row]));
+  const progressByQuestion = new Map(
+    (data || []).map(row => [row.question_id, row])
+  );
 
   for (const topic of state.topics) {
-    const { data: questions, error: qError } = await supabase
+    const { data: questionsData, error: qError } = await supabase
       .from('questions')
       .select('id, topic_id')
       .eq('topic_id', topic.id)
@@ -311,9 +361,15 @@ async function loadUserProgress() {
       continue;
     }
 
-    const solved = questions.filter(q => progressByQuestion.get(q.id)?.status === 'solved').length;
-    const failed = questions.filter(q => progressByQuestion.get(q.id)?.status === 'failed').length;
-    const total = questions.length;
+    const solved = questionsData.filter(
+      q => progressByQuestion.get(q.id)?.status === 'solved'
+    ).length;
+
+    const failed = questionsData.filter(
+      q => progressByQuestion.get(q.id)?.status === 'failed'
+    ).length;
+
+    const total = questionsData.length;
 
     state.topicProgress.set(topic.id, {
       solved,
@@ -326,7 +382,7 @@ async function loadUserProgress() {
 }
 
 // =========================
-// RENDERING
+// RENDER
 // =========================
 function renderGuestState() {
   authCard.classList.remove('hidden');
@@ -345,7 +401,11 @@ function renderAuthenticatedState() {
   userArea.classList.remove('hidden');
   progressCard.classList.remove('hidden');
 
-  profileInitial.textContent = (state.profile?.real_name || 'U').trim().charAt(0).toUpperCase();
+  profileInitial.textContent = (state.profile?.real_name || 'U')
+    .trim()
+    .charAt(0)
+    .toUpperCase();
+
   menuRealName.textContent = state.profile?.real_name || '—';
   menuEmail.textContent = state.profile?.email || '—';
   menuUsername.textContent = state.profile?.username || '—';
@@ -363,9 +423,17 @@ function renderTopics() {
     const box = document.createElement('div');
     box.className = 'topic-card';
 
-    const stats = state.topicProgress.get(topic.id) || { solved: 0, failed: 0, total: 0 };
+    const stats = state.topicProgress.get(topic.id) || {
+      solved: 0,
+      failed: 0,
+      total: 0
+    };
+
     const completed = stats.solved + stats.failed;
-    const nextLabel = completed >= stats.total ? 'Завершено' : `Доступно: ${Math.min(completed + 1, stats.total)}/${stats.total}`;
+    const nextLabel =
+      completed >= stats.total
+        ? 'Завершено'
+        : `Доступно: ${Math.min(completed + 1, stats.total)}/${stats.total}`;
 
     box.innerHTML = `
       <div>
@@ -384,134 +452,174 @@ function renderTopics() {
   });
 }
 
+// =========================
+// OPEN TOPIC
+// =========================
 async function openTopic(topic) {
-  state.currentTopic = topic;
-  state.currentQuestionIndex = 0;
-  state.selectedOption = null;
+  try {
+    state.currentTopic = topic;
+    state.currentQuestionIndex = 0;
+    state.selectedOption = null;
 
-  const { data, error } = await supabase
-    .from('questions')
-    .select('*')
-    .eq('topic_id', topic.id)
-    .order('order_index', { ascending: true });
+    const { data, error } = await supabase
+      .from('questions')
+      .select('*')
+      .eq('topic_id', topic.id)
+      .order('order_index', { ascending: true });
 
-  if (error) {
-    console.error(error);
-    showToast('Не удалось загрузить задачи темы');
-    return;
-  }
+    if (error) throw error;
 
-  state.currentQuestions = data || [];
+    state.currentQuestions = data || [];
 
-  if (!state.currentQuestions.length) {
-    showToast('В этой теме пока нет задач');
-    return;
-  }
-
-  const { data: progressRows } = await supabase
-    .from('question_progress')
-    .select('*')
-    .eq('user_id', state.profile.id)
-    .in('question_id', state.currentQuestions.map(q => q.id));
-
-  const progressMap = new Map((progressRows || []).map(row => [row.question_id, row]));
-
-  const firstOpenIndex = state.currentQuestions.findIndex(q => {
-    const row = progressMap.get(q.id);
-    return !row || row.status === 'not_started';
-  });
-
-  state.currentQuestionIndex = firstOpenIndex === -1 ? state.currentQuestions.length - 1 : firstOpenIndex;
-  questionCard.classList.remove('hidden');
-  topicsCard.classList.add('hidden');
-
-  await renderCurrentQuestion();
-}
-
-async function renderCurrentQuestion() {
-  const question = state.currentQuestions[state.currentQuestionIndex];
-  if (!question) return;
-
-  state.selectedOption = null;
-  nextQuestionBtn.classList.add('hidden');
-  submitAnswerBtn.disabled = false;
-
-  const { data: progressRow } = await supabase
-    .from('question_progress')
-    .select('*')
-    .eq('user_id', state.profile.id)
-    .eq('question_id', question.id)
-    .maybeSingle();
-
-  state.currentProgressRow = progressRow || null;
-
-  const percentage = ((state.currentQuestionIndex + 1) / state.currentQuestions.length) * 100;
-  questionProgressFill.style.width = `${percentage}%`;
-
-  questionMeta.textContent = `${state.currentTopic.title} · Задача ${state.currentQuestionIndex + 1} из ${state.currentQuestions.length}`;
-  questionTitle.textContent = `Вопрос ${question.order_index}`;
-  questionText.textContent = question.question_text;
-
-  const options = [
-    { key: 'A', value: question.option_a },
-    { key: 'B', value: question.option_b },
-    { key: 'C', value: question.option_c },
-    { key: 'D', value: question.option_d }
-  ];
-
-  optionsWrap.innerHTML = '';
-  options.forEach(opt => {
-    const node = document.createElement('div');
-    node.className = 'option';
-    node.dataset.option = opt.key;
-    node.innerHTML = `
-      <div class="option-letter">${opt.key}</div>
-      <div>${escapeHtml(opt.value)}</div>
-    `;
-
-    if (progressRow?.status === 'solved' && progressRow.last_selected_option === opt.key) {
-      node.classList.add('correct');
+    if (!state.currentQuestions.length) {
+      showToast('В этой теме пока нет задач');
+      return;
     }
 
-    if (progressRow?.status === 'failed') {
-      if (opt.key === question.correct_option) node.classList.add('correct');
-      if (opt.key === progressRow.last_selected_option && opt.key !== question.correct_option) node.classList.add('wrong');
+    const questionIds = state.currentQuestions.map(q => q.id);
+
+    let progressRows = [];
+    if (questionIds.length) {
+      const { data: progressData, error: progressError } = await supabase
+        .from('question_progress')
+        .select('question_id, status, attempts_used, last_selected_option')
+        .eq('user_id', state.profile.id)
+        .in('question_id', questionIds);
+
+      if (progressError) throw progressError;
+      progressRows = progressData || [];
     }
 
-    node.addEventListener('click', () => {
-      if (progressRow?.status === 'solved' || progressRow?.status === 'failed') return;
-      document.querySelectorAll('.option').forEach(el => el.classList.remove('selected'));
-      node.classList.add('selected');
-      state.selectedOption = opt.key;
+    const progressMap = new Map(
+      progressRows.map(row => [row.question_id, row])
+    );
+
+    const firstOpenIndex = state.currentQuestions.findIndex(q => {
+      const row = progressMap.get(q.id);
+      return !row || row.status === 'not_started';
     });
 
-    optionsWrap.appendChild(node);
-  });
+    state.currentQuestionIndex = firstOpenIndex === -1 ? 0 : firstOpenIndex;
 
-  if (progressRow?.status === 'solved') {
-    showFeedback('success', `Верно. Ты уже решил эту задачу.`);
-    submitAnswerBtn.disabled = true;
-    nextQuestionBtn.classList.remove('hidden');
-  } else if (progressRow?.status === 'failed') {
-    showFeedback('error', `Эта задача уже закрыта после 2 ошибок. Правильный ответ: ${question.correct_option}.`);
-    submitAnswerBtn.disabled = true;
-    nextQuestionBtn.classList.remove('hidden');
-  } else {
-    const attemptsText = progressRow ? `Попыток использовано: ${progressRow.attempts_used}/2` : 'Попыток использовано: 0/2';
-    showFeedback('info', attemptsText);
+    topicsCard.classList.add('hidden');
+    questionCard.classList.remove('hidden');
+
+    await renderCurrentQuestion();
+  } catch (err) {
+    console.error('openTopic error:', err);
+    showToast(err.message || 'Не удалось открыть тему');
   }
 }
 
-function showFeedback(type, text) {
-  questionFeedback.className = `feedback ${type}`;
-  questionFeedback.textContent = text;
-  questionFeedback.classList.remove('hidden');
-}
+// =========================
+// RENDER CURRENT QUESTION
+// =========================
+async function renderCurrentQuestion() {
+  try {
+    const question = state.currentQuestions[state.currentQuestionIndex];
+    if (!question) return;
 
-function showTopicsView() {
-  questionCard.classList.add('hidden');
-  topicsCard.classList.remove('hidden');
-  renderTopics();
+    state.selectedOption = null;
+    nextQuestionBtn.classList.add('hidden');
+    submitAnswerBtn.disabled = false;
+
+    const { data: progressRow, error: progressError } = await supabase
+      .from('question_progress')
+      .select('*')
+      .eq('user_id', state.profile.id)
+      .eq('question_id', question.id)
+      .maybeSingle();
+
+    if (progressError) throw progressError;
+
+    state.currentProgressRow = progressRow || null;
+
+    const percentage =
+      ((state.currentQuestionIndex + 1) / state.currentQuestions.length) * 100;
+    questionProgressFill.style.width = `${percentage}%`;
+
+    questionMeta.textContent =
+      `${state.currentTopic.title} · Задача ${state.currentQuestionIndex + 1} из ${state.currentQuestions.length}`;
+
+    questionTitle.textContent = `Вопрос ${question.order_index}`;
+    questionText.textContent = String(question.question_text ?? '');
+
+    const options = [
+      { key: 'A', value: String(question.option_a ?? '') },
+      { key: 'B', value: String(question.option_b ?? '') },
+      { key: 'C', value: String(question.option_c ?? '') },
+      { key: 'D', value: String(question.option_d ?? '') }
+    ];
+
+    optionsWrap.innerHTML = '';
+
+    options.forEach(opt => {
+      const node = document.createElement('div');
+      node.className = 'option';
+      node.dataset.option = opt.key;
+      node.innerHTML = `
+        <div class="option-letter">${opt.key}</div>
+        <div>${escapeHtml(opt.value)}</div>
+      `;
+
+      if (
+        progressRow?.status === 'solved' &&
+        progressRow.last_selected_option === opt.key
+      ) {
+        node.classList.add('correct');
+      }
+
+      if (progressRow?.status === 'failed') {
+        if (opt.key === question.correct_option) {
+          node.classList.add('correct');
+        }
+
+        if (
+          opt.key === progressRow.last_selected_option &&
+          opt.key !== question.correct_option
+        ) {
+          node.classList.add('wrong');
+        }
+      }
+
+      node.addEventListener('click', () => {
+        if (progressRow?.status === 'solved' || progressRow?.status === 'failed') {
+          return;
+        }
+
+        document.querySelectorAll('.option').forEach(el => {
+          el.classList.remove('selected');
+        });
+
+        node.classList.add('selected');
+        state.selectedOption = opt.key;
+      });
+
+      optionsWrap.appendChild(node);
+    });
+
+    if (progressRow?.status === 'solved') {
+      showFeedback('success', 'Верно. Ты уже решил эту задачу.');
+      submitAnswerBtn.disabled = true;
+      nextQuestionBtn.classList.remove('hidden');
+    } else if (progressRow?.status === 'failed') {
+      showFeedback(
+        'error',
+        `Эта задача уже закрыта после 2 ошибок. Правильный ответ: ${question.correct_option}.`
+      );
+      submitAnswerBtn.disabled = true;
+      nextQuestionBtn.classList.remove('hidden');
+    } else {
+      const attemptsText = progressRow
+        ? `Попыток использовано: ${progressRow.attempts_used}/2`
+        : 'Попыток использовано: 0/2';
+
+      showFeedback('info', attemptsText);
+    }
+  } catch (err) {
+    console.error('renderCurrentQuestion error:', err);
+    showToast(err.message || 'Не удалось показать задачу');
+  }
 }
 
 // =========================
@@ -522,6 +630,7 @@ async function handleSubmitAnswer() {
   const progressRow = state.currentProgressRow;
 
   if (!question) return;
+
   if (!state.selectedOption) {
     showToast('Сначала выбери один вариант');
     return;
@@ -542,70 +651,94 @@ async function handleSubmitAnswer() {
       selected_option: state.selectedOption,
       is_correct: isCorrect
     });
+
     if (attemptError) throw attemptError;
 
     if (isCorrect) {
-      const { error: progressError } = await supabase.from('question_progress').upsert({
-        user_id: state.profile.id,
-        question_id: question.id,
-        status: 'solved',
-        attempts_used: nextAttemptNumber,
-        last_selected_option: state.selectedOption,
-        finished_at: new Date().toISOString()
-      }, { onConflict: 'user_id,question_id' });
+      const { error: progressError } = await supabase
+        .from('question_progress')
+        .upsert(
+          {
+            user_id: state.profile.id,
+            question_id: question.id,
+            status: 'solved',
+            attempts_used: nextAttemptNumber,
+            last_selected_option: state.selectedOption,
+            finished_at: new Date().toISOString()
+          },
+          { onConflict: 'user_id,question_id' }
+        );
+
       if (progressError) throw progressError;
 
-      showFeedback('success', `Правильно. Задача решена ${nextAttemptNumber === 1 ? 'с первой' : 'со второй'} попытки.`);
+      showFeedback(
+        'success',
+        `Правильно. Задача решена ${nextAttemptNumber === 1 ? 'с первой' : 'со второй'} попытки.`
+      );
+
       colorizeOptions(question.correct_option, state.selectedOption);
       submitAnswerBtn.disabled = true;
       nextQuestionBtn.classList.remove('hidden');
     } else if (nextAttemptNumber >= 2) {
-      const { error: progressError } = await supabase.from('question_progress').upsert({
-        user_id: state.profile.id,
-        question_id: question.id,
-        status: 'failed',
-        attempts_used: nextAttemptNumber,
-        last_selected_option: state.selectedOption,
-        finished_at: new Date().toISOString()
-      }, { onConflict: 'user_id,question_id' });
+      const { error: progressError } = await supabase
+        .from('question_progress')
+        .upsert(
+          {
+            user_id: state.profile.id,
+            question_id: question.id,
+            status: 'failed',
+            attempts_used: nextAttemptNumber,
+            last_selected_option: state.selectedOption,
+            finished_at: new Date().toISOString()
+          },
+          { onConflict: 'user_id,question_id' }
+        );
+
       if (progressError) throw progressError;
 
-      showFeedback('error', `Неправильно. Это была вторая ошибка. Правильный ответ: ${question.correct_option}.`);
+      showFeedback(
+        'error',
+        `Неправильно. Это была вторая ошибка. Правильный ответ: ${question.correct_option}.`
+      );
+
       colorizeOptions(question.correct_option, state.selectedOption);
       submitAnswerBtn.disabled = true;
       nextQuestionBtn.classList.remove('hidden');
     } else {
-      const { error: progressError } = await supabase.from('question_progress').upsert({
-        user_id: state.profile.id,
-        question_id: question.id,
-        status: 'not_started',
-        attempts_used: nextAttemptNumber,
-        last_selected_option: state.selectedOption
-      }, { onConflict: 'user_id,question_id' });
+      const { error: progressError } = await supabase
+        .from('question_progress')
+        .upsert(
+          {
+            user_id: state.profile.id,
+            question_id: question.id,
+            status: 'not_started',
+            attempts_used: nextAttemptNumber,
+            last_selected_option: state.selectedOption
+          },
+          { onConflict: 'user_id,question_id' }
+        );
+
       if (progressError) throw progressError;
 
-      showFeedback('error', `Неправильно. Осталась еще 1 попытка.`);
+      showFeedback('error', 'Неправильно. Осталась еще 1 попытка.');
       colorizeOptions(null, state.selectedOption);
     }
 
     await loadUserProgress();
     await renderCurrentQuestion();
-    if (state.profile?.role === 'admin') await loadAdminStats();
+
+    if (state.profile?.role === 'admin') {
+      await loadAdminStats();
+    }
   } catch (err) {
     console.error(err);
     showToast(err.message || 'Ошибка при сохранении ответа');
   }
 }
 
-function colorizeOptions(correctKey, selectedKey) {
-  document.querySelectorAll('.option').forEach(el => {
-    const key = el.dataset.option;
-    el.classList.remove('selected');
-    if (correctKey && key === correctKey) el.classList.add('correct');
-    if (selectedKey && key === selectedKey && key !== correctKey) el.classList.add('wrong');
-  });
-}
-
+// =========================
+// NEXT QUESTION
+// =========================
 async function goToNextQuestion() {
   if (state.currentQuestionIndex < state.currentQuestions.length - 1) {
     state.currentQuestionIndex += 1;
@@ -628,7 +761,11 @@ function updateOverallStats(progressRows) {
   failedCount.textContent = failed;
   allCount.textContent = all;
 
-  const totalQuestions = Array.from(state.topicProgress.values()).reduce((sum, t) => sum + (t.total || 0), 0);
+  const totalQuestions = Array.from(state.topicProgress.values()).reduce(
+    (sum, t) => sum + (t.total || 0),
+    0
+  );
+
   progressBadge.textContent = `${all} / ${totalQuestions}`;
 }
 
@@ -686,7 +823,8 @@ async function loadAdminStats() {
     adminTableBody.innerHTML = '';
 
     if (!rows.length) {
-      adminTableBody.innerHTML = `<tr><td colspan="5" class="muted">Пока нет данных</td></tr>`;
+      adminTableBody.innerHTML =
+        `<tr><td colspan="5" class="muted">Пока нет данных</td></tr>`;
       return;
     }
 
@@ -705,16 +843,4 @@ async function loadAdminStats() {
     console.error(err);
     showToast(err.message || 'Не удалось загрузить admin-статистику');
   }
-}
-
-// =========================
-// UTILS
-// =========================
-function escapeHtml(value = '') {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
 }
