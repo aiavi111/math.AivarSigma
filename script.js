@@ -5,8 +5,8 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
  * 1) ВСТАВЬ СВОИ ДАННЫЕ
  * =========================
  */
-const SUPABASE_URL = 'PASTE_YOUR_SUPABASE_URL_HERE';
-const SUPABASE_ANON_KEY = 'PASTE_YOUR_SUPABASE_ANON_KEY_HERE';
+const SUPABASE_URL = 'https://iszboxtemwkeleklmmgp.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_fsKF8wnorlEEcexl5WSpnQ_HTMSVNb_';
 
 /**
  * URL сайта после деплоя
