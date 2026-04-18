@@ -24,15 +24,18 @@
         <button id="profileBtn" class="profile-btn" title="Профиль">
           <span id="profileInitial">U</span>
         </button>
+
         <div id="profileMenu" class="profile-menu hidden">
           <div class="profile-menu-head">
             <strong id="menuRealName">—</strong>
             <span id="menuEmail">—</span>
           </div>
+
           <div class="profile-menu-body">
             <div><span>Username:</span> <b id="menuUsername">—</b></div>
             <div><span>Роль:</span> <b id="menuRole">student</b></div>
           </div>
+
           <button id="logoutBtn" class="danger-btn">Выйти</button>
         </div>
       </div>
@@ -42,8 +45,8 @@
       <section class="left-panel">
         <div id="authCard" class="card auth-card">
           <div class="tabs">
-            <button id="loginTab" class="tab active">Вход</button>
-            <button id="registerTab" class="tab">Регистрация</button>
+            <button id="loginTab" class="tab active" type="button">Вход</button>
+            <button id="registerTab" class="tab" type="button">Регистрация</button>
           </div>
 
           <form id="loginForm" class="auth-form">
@@ -51,10 +54,12 @@
               <span>Email</span>
               <input type="email" id="loginEmail" placeholder="you@example.com" required />
             </label>
+
             <label>
               <span>Пароль</span>
               <input type="password" id="loginPassword" placeholder="********" required />
             </label>
+
             <button class="primary-btn" type="submit">Войти</button>
           </form>
 
@@ -63,20 +68,24 @@
               <span>Username</span>
               <input type="text" id="regUsername" placeholder="aivar_09" minlength="3" required />
             </label>
+
             <label>
               <span>Real name</span>
-              <input type="text" id="regRealName" placeholder="Айвар Тынчтыкбеков" minlength="2" required />
+              <input type="text" id="regRealName" placeholder="Айвар" minlength="2" required />
             </label>
+
             <label>
               <span>Email</span>
               <input type="email" id="regEmail" placeholder="you@example.com" required />
             </label>
+
             <label>
               <span>Пароль</span>
               <input type="password" id="regPassword" placeholder="минимум 6 символов" minlength="6" required />
             </label>
+
             <button class="primary-btn" type="submit">Создать аккаунт</button>
-            <p class="hint">После регистрации пользователю придет письмо для подтверждения email.</p>
+            <p class="hint">После регистрации просто войди в аккаунт.</p>
           </form>
         </div>
 
@@ -85,28 +94,35 @@
             <h2>Мой прогресс</h2>
             <span id="progressBadge" class="badge">0 / 0</span>
           </div>
+
           <div class="stats-row">
             <div class="stat-box">
               <span>Решено</span>
               <strong id="solvedCount">0</strong>
             </div>
+
             <div class="stat-box">
               <span>Провалено</span>
               <strong id="failedCount">0</strong>
             </div>
+
             <div class="stat-box">
               <span>Всего</span>
               <strong id="allCount">0</strong>
             </div>
           </div>
-          <p class="hint">В каждой задаче только 2 попытки. После второй ошибки показывается правильный ответ.</p>
+
+          <p class="hint">
+            В каждой задаче только 2 попытки. После второй ошибки показывается правильный ответ.
+          </p>
         </div>
 
         <div id="adminCard" class="card hidden">
           <div class="section-head">
             <h2>Admin panel</h2>
-            <button id="refreshAdminBtn" class="ghost-btn">Обновить</button>
+            <button id="refreshAdminBtn" class="ghost-btn" type="button">Обновить</button>
           </div>
+
           <div class="table-wrap">
             <table>
               <thead>
@@ -119,7 +135,9 @@
                 </tr>
               </thead>
               <tbody id="adminTableBody">
-                <tr><td colspan="5" class="muted">Пока нет данных</td></tr>
+                <tr>
+                  <td colspan="5" class="muted">Пока нет данных</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -133,12 +151,13 @@
             После входа ученик увидит 5 тем. Внутри каждой темы задачи идут по порядку.
             На каждую задачу дается только 2 попытки.
           </p>
+
           <ul class="feature-list">
-            <li>Регистрация и вход по email</li>
-            <li>Подтверждение почты</li>
+            <li>Регистрация и вход</li>
             <li>Сохранение прогресса</li>
-            <li>Профиль справа сверху</li>
-            <li>Просмотр результатов учеников для admin</li>
+            <li>5 тем</li>
+            <li>Multiple choice</li>
+            <li>2 попытки на задачу</li>
           </ul>
         </div>
 
@@ -147,12 +166,14 @@
             <h2>Темы</h2>
             <span class="badge">5 разделов</span>
           </div>
+
           <div id="topicsGrid" class="topics-grid"></div>
         </div>
 
         <div id="questionCard" class="card hidden">
           <div class="question-head">
-            <button id="backToTopicsBtn" class="ghost-btn">← Назад к темам</button>
+            <button id="backToTopicsBtn" class="ghost-btn" type="button">← Назад к темам</button>
+
             <div>
               <div id="questionMeta" class="question-meta">Тема · Задача</div>
               <h2 id="questionTitle">Задача</h2>
@@ -164,12 +185,11 @@
           </div>
 
           <div id="questionText" class="question-text"></div>
-
           <div id="optionsWrap" class="options-wrap"></div>
 
           <div class="question-actions">
-            <button id="submitAnswerBtn" class="primary-btn">Проверить ответ</button>
-            <button id="nextQuestionBtn" class="ghost-btn hidden">Следующая задача →</button>
+            <button id="submitAnswerBtn" class="primary-btn" type="button">Проверить ответ</button>
+            <button id="nextQuestionBtn" class="ghost-btn hidden" type="button">Следующая задача →</button>
           </div>
 
           <div id="questionFeedback" class="feedback hidden"></div>
@@ -180,6 +200,6 @@
 
   <div id="toast" class="toast hidden"></div>
 
- <script type="module" src="script.js?v=2"></script>
+  <script type="module" src="script.js?v=3"></script>
 </body>
 </html>
