@@ -1,26 +1,10 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-/**
- * =========================
- * 1) ВСТАВЬ СВОИ ДАННЫЕ
- * =========================
- */
+/* =========================
+   ВСТАВЬ СВОИ ДАННЫЕ
+========================= */
 const SUPABASE_URL = 'https://iszboxtemwkeleklmmgp.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_fsKF8wnorlEEcexl5WSpnQ_HTMSVNb_';
-
-/**
- * URL сайта после деплоя
- */
-const SITE_URL =
-  window.location.origin +
-  window.location.pathname.replace(/\/[^/]*$/, '/');
-
-if (
-  SUPABASE_URL.includes('PASTE_') ||
-  SUPABASE_ANON_KEY.includes('PASTE_')
-) {
-  alert('Сначала открой script.js и вставь SUPABASE_URL и SUPABASE_ANON_KEY.');
-}
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -30,45 +14,32 @@ const state = {
   topics: [],
   topicProgress: new Map(),
   currentTopic: null,
-  currentQuestionIndex: 0,
   currentQuestions: [],
-  selectedOption: null,
-  currentProgressRow: null
+  currentQuestionIndex: 0,
+  currentProgressRow: null,
+  selectedOption: null
 };
 
-// =========================
-// DOM
-// =========================
+/* =========================
+   DOM
+========================= */
 const loginTab = document.getElementById('loginTab');
 const registerTab = document.getElementById('registerTab');
 const loginForm = document.getElementById('loginForm');
 const registerForm = document.getElementById('registerForm');
+
 const authCard = document.getElementById('authCard');
-const userArea = document.getElementById('userArea');
-const profileBtn = document.getElementById('profileBtn');
-const profileMenu = document.getElementById('profileMenu');
-const logoutBtn = document.getElementById('logoutBtn');
 const guestHero = document.getElementById('guestHero');
 const topicsCard = document.getElementById('topicsCard');
 const topicsGrid = document.getElementById('topicsGrid');
 const questionCard = document.getElementById('questionCard');
-const questionMeta = document.getElementById('questionMeta');
-const questionTitle = document.getElementById('questionTitle');
-const questionText = document.getElementById('questionText');
-const optionsWrap = document.getElementById('optionsWrap');
-const submitAnswerBtn = document.getElementById('submitAnswerBtn');
-const nextQuestionBtn = document.getElementById('nextQuestionBtn');
-const questionFeedback = document.getElementById('questionFeedback');
-const backToTopicsBtn = document.getElementById('backToTopicsBtn');
 const progressCard = document.getElementById('progressCard');
-const progressBadge = document.getElementById('progressBadge');
-const solvedCount = document.getElementById('solvedCount');
-const failedCount = document.getElementById('failedCount');
-const allCount = document.getElementById('allCount');
-const questionProgressFill = document.getElementById('questionProgressFill');
 const adminCard = document.getElementById('adminCard');
-const adminTableBody = document.getElementById('adminTableBody');
-const refreshAdminBtn = document.getElementById('refreshAdminBtn');
+
+const userArea = document.getElementById('userArea');
+const profileBtn = document.getElementById('profileBtn');
+const profileMenu = document.getElementById('profileMenu');
+const logoutBtn = document.getElementById('logoutBtn');
 
 const profileInitial = document.getElementById('profileInitial');
 const menuRealName = document.getElementById('menuRealName');
@@ -76,14 +47,41 @@ const menuEmail = document.getElementById('menuEmail');
 const menuUsername = document.getElementById('menuUsername');
 const menuRole = document.getElementById('menuRole');
 
-// =========================
-// HELPERS
-// =========================
+const questionMeta = document.getElementById('questionMeta');
+const questionTitle = document.getElementById('questionTitle');
+const questionText = document.getElementById('questionText');
+const optionsWrap = document.getElementById('optionsWrap');
+const questionFeedback = document.getElementById('questionFeedback');
+const submitAnswerBtn = document.getElementById('submitAnswerBtn');
+const nextQuestionBtn = document.getElementById('nextQuestionBtn');
+const backToTopicsBtn = document.getElementById('backToTopicsBtn');
+const questionProgressFill = document.getElementById('questionProgressFill');
+
+const solvedCount = document.getElementById('solvedCount');
+const failedCount = document.getElementById('failedCount');
+const allCount = document.getElementById('allCount');
+const progressBadge = document.getElementById('progressBadge');
+
+const adminTableBody = document.getElementById('adminTableBody');
+const refreshAdminBtn = document.getElementById('refreshAdminBtn');
+
+/* =========================
+   UTILS
+========================= */
 function showToast(message) {
   const toast = document.getElementById('toast');
   toast.textContent = message;
   toast.classList.remove('hidden');
   setTimeout(() => toast.classList.add('hidden'), 3500);
+}
+
+function escapeHtml(value = '') {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
 }
 
 function showFeedback(type, text) {
@@ -92,14 +90,8 @@ function showFeedback(type, text) {
   questionFeedback.classList.remove('hidden');
 }
 
-function escapeHtml(value = '') {
-  const text = String(value ?? '');
-  return text
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
+function getUserId() {
+  return state.session?.user?.id || null;
 }
 
 function setActiveTab(tab) {
@@ -116,6 +108,40 @@ function setActiveTab(tab) {
   }
 }
 
+function showGuestState() {
+  authCard.classList.remove('hidden');
+  guestHero.classList.remove('hidden');
+  topicsCard.classList.add('hidden');
+  questionCard.classList.add('hidden');
+  progressCard.classList.add('hidden');
+  adminCard.classList.add('hidden');
+  userArea.classList.add('hidden');
+}
+
+function showUserState() {
+  authCard.classList.add('hidden');
+  guestHero.classList.add('hidden');
+  topicsCard.classList.remove('hidden');
+  progressCard.classList.remove('hidden');
+  userArea.classList.remove('hidden');
+
+  const name = state.profile?.real_name || state.session?.user?.email || 'User';
+  const username =
+    state.profile?.username ||
+    state.session?.user?.email?.split('@')[0] ||
+    'user';
+
+  profileInitial.textContent = name.charAt(0).toUpperCase();
+  menuRealName.textContent = name;
+  menuEmail.textContent = state.session?.user?.email || '—';
+  menuUsername.textContent = username;
+  menuRole.textContent = state.profile?.role || 'student';
+
+  adminCard.classList.toggle('hidden', state.profile?.role !== 'admin');
+
+  renderTopics();
+}
+
 function showTopicsView() {
   questionCard.classList.add('hidden');
   topicsCard.classList.remove('hidden');
@@ -126,16 +152,16 @@ function colorizeOptions(correctKey, selectedKey) {
   document.querySelectorAll('.option').forEach(el => {
     const key = el.dataset.option;
     el.classList.remove('selected');
-    if (correctKey && key === correctKey) el.classList.add('correct');
+    if (key === correctKey) el.classList.add('correct');
     if (selectedKey && key === selectedKey && key !== correctKey) {
       el.classList.add('wrong');
     }
   });
 }
 
-// =========================
-// EVENTS
-// =========================
+/* =========================
+   EVENTS
+========================= */
 loginTab.addEventListener('click', () => setActiveTab('login'));
 registerTab.addEventListener('click', () => setActiveTab('register'));
 
@@ -157,9 +183,9 @@ nextQuestionBtn.addEventListener('click', goToNextQuestion);
 backToTopicsBtn.addEventListener('click', showTopicsView);
 refreshAdminBtn.addEventListener('click', loadAdminStats);
 
-// =========================
-// AUTH
-// =========================
+/* =========================
+   AUTH
+========================= */
 async function handleRegister(e) {
   e.preventDefault();
 
@@ -173,7 +199,6 @@ async function handleRegister(e) {
       email,
       password,
       options: {
-        emailRedirectTo: SITE_URL,
         data: {
           username,
           real_name: realName
@@ -183,7 +208,7 @@ async function handleRegister(e) {
 
     if (error) throw error;
 
-    showToast('Аккаунт создан. Проверь почту и подтверди email.');
+    showToast('Аккаунт создан. Теперь войди в аккаунт.');
     registerForm.reset();
     setActiveTab('login');
   } catch (err) {
@@ -199,18 +224,20 @@ async function handleLogin(e) {
   const password = document.getElementById('loginPassword').value;
 
   try {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
     });
 
     if (error) throw error;
 
+    state.session = data.session;
     showToast('Вход выполнен');
     loginForm.reset();
+
     await bootstrap();
   } catch (err) {
-    console.error(err);
+    console.error('LOGIN ERROR:', err);
     showToast(err.message || 'Ошибка входа');
   }
 }
@@ -219,210 +246,150 @@ async function handleLogout() {
   await supabase.auth.signOut();
   state.session = null;
   state.profile = null;
-  renderGuestState();
-  showToast('Вы вышли из аккаунта');
+  showGuestState();
+  showToast('Вы вышли');
 }
 
-async function upsertProfile(userId, profileData) {
-  const payload = {
-    id: userId,
-    username: profileData.username,
-    real_name: profileData.real_name,
-    email: profileData.email,
-    role: profileData.role || 'student'
-  };
+/* =========================
+   BOOTSTRAP
+========================= */
+window.addEventListener('load', bootstrap);
 
-  const { error } = await supabase.from('profiles').upsert(payload);
-  if (error) throw error;
-}
-
-// =========================
-// INITIAL LOAD
-// =========================
 supabase.auth.onAuthStateChange(async (_event, session) => {
   state.session = session;
   await bootstrap();
 });
 
-window.addEventListener('load', bootstrap);
-
 async function bootstrap() {
-  const {
-    data: { session }
-  } = await supabase.auth.getSession();
+  try {
+    const {
+      data: { session }
+    } = await supabase.auth.getSession();
 
-  state.session = session || null;
+    state.session = session || null;
 
-  if (!state.session?.user) {
-    renderGuestState();
-    return;
-  }
+    if (!state.session?.user) {
+      showGuestState();
+      return;
+    }
 
-  await ensureProfile();
-  await loadTopics();
-  await loadUserProgress();
-  renderAuthenticatedState();
+    await ensureProfileSafe();
+    await loadTopics();
+    await loadUserProgress();
+    showUserState();
 
-  if (state.profile?.role === 'admin') {
-    await loadAdminStats();
+    if (state.profile?.role === 'admin') {
+      await loadAdminStats();
+    }
+  } catch (err) {
+    console.error('BOOTSTRAP ERROR:', err);
+    showToast(err.message || 'Ошибка загрузки сайта');
   }
 }
 
-async function ensureProfile() {
+/* =========================
+   PROFILE
+========================= */
+async function ensureProfileSafe() {
   const user = state.session.user;
 
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .maybeSingle();
+  const fallbackProfile = {
+    id: user.id,
+    username: user.user_metadata?.username || user.email.split('@')[0],
+    real_name: user.user_metadata?.real_name || user.email,
+    email: user.email,
+    role: 'student'
+  };
 
-  if (error) {
-    console.error(error);
-    showToast('Не удалось загрузить профиль');
-    return;
-  }
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .maybeSingle();
 
-  if (!data) {
-    const username =
-      user.user_metadata?.username ||
-      user.email?.split('@')[0] ||
-      'user';
-
-    const realName =
-      user.user_metadata?.real_name ||
-      user.email ||
-      'Student';
-
-    try {
-      await upsertProfile(user.id, {
-        username,
-        real_name: realName,
-        email: user.email,
-        role: 'student'
-      });
-
-      state.profile = {
-        id: user.id,
-        username,
-        real_name: realName,
-        email: user.email,
-        role: 'student'
-      };
-    } catch (err) {
-      console.error(err);
+    if (error) {
+      console.error('PROFILE SELECT ERROR:', error);
+      state.profile = fallbackProfile;
+      return;
     }
-  } else {
-    state.profile = data;
+
+    if (data) {
+      state.profile = data;
+      return;
+    }
+
+    const { error: upsertError } = await supabase.from('profiles').upsert({
+      id: fallbackProfile.id,
+      username: fallbackProfile.username,
+      real_name: fallbackProfile.real_name,
+      email: fallbackProfile.email,
+      role: fallbackProfile.role
+    });
+
+    if (upsertError) {
+      console.error('PROFILE UPSERT ERROR:', upsertError);
+      state.profile = fallbackProfile;
+      return;
+    }
+
+    state.profile = fallbackProfile;
+  } catch (err) {
+    console.error('ensureProfileSafe ERROR:', err);
+    state.profile = fallbackProfile;
   }
 }
 
+/* =========================
+   TOPICS + PROGRESS
+========================= */
 async function loadTopics() {
   const { data, error } = await supabase
     .from('topics')
     .select('*')
     .order('order_index', { ascending: true });
 
-  if (error) {
-    console.error(error);
-    showToast('Не удалось загрузить темы');
-    return;
-  }
-
+  if (error) throw error;
   state.topics = data || [];
 }
 
 async function loadUserProgress() {
-  const { data, error } = await supabase
+  const userId = getUserId();
+  if (!userId) return;
+
+  const { data: progressRows, error: progressError } = await supabase
     .from('question_progress')
     .select('question_id, status, attempts_used')
-    .eq('user_id', state.profile.id);
+    .eq('user_id', userId);
 
-  if (error) {
-    console.error(error);
-    showToast('Не удалось загрузить прогресс');
-    return;
-  }
+  if (progressError) throw progressError;
 
+  const progressMap = new Map((progressRows || []).map(row => [row.question_id, row]));
   state.topicProgress = new Map();
-  const progressByQuestion = new Map(
-    (data || []).map(row => [row.question_id, row])
-  );
 
   for (const topic of state.topics) {
-    const { data: questionsData, error: qError } = await supabase
+    const { data: topicQuestions, error: qError } = await supabase
       .from('questions')
-      .select('id, topic_id')
+      .select('id')
       .eq('topic_id', topic.id)
       .order('order_index', { ascending: true });
 
-    if (qError) {
-      console.error(qError);
-      continue;
-    }
+    if (qError) throw qError;
 
-    const solved = questionsData.filter(
-      q => progressByQuestion.get(q.id)?.status === 'solved'
-    ).length;
+    const solved = topicQuestions.filter(q => progressMap.get(q.id)?.status === 'solved').length;
+    const failed = topicQuestions.filter(q => progressMap.get(q.id)?.status === 'failed').length;
+    const total = topicQuestions.length;
 
-    const failed = questionsData.filter(
-      q => progressByQuestion.get(q.id)?.status === 'failed'
-    ).length;
-
-    const total = questionsData.length;
-
-    state.topicProgress.set(topic.id, {
-      solved,
-      failed,
-      total
-    });
+    state.topicProgress.set(topic.id, { solved, failed, total });
   }
 
-  updateOverallStats(data || []);
-}
-
-// =========================
-// RENDER
-// =========================
-function renderGuestState() {
-  authCard.classList.remove('hidden');
-  guestHero.classList.remove('hidden');
-  topicsCard.classList.add('hidden');
-  questionCard.classList.add('hidden');
-  userArea.classList.add('hidden');
-  progressCard.classList.add('hidden');
-  adminCard.classList.add('hidden');
-}
-
-function renderAuthenticatedState() {
-  authCard.classList.add('hidden');
-  guestHero.classList.add('hidden');
-  topicsCard.classList.remove('hidden');
-  userArea.classList.remove('hidden');
-  progressCard.classList.remove('hidden');
-
-  profileInitial.textContent = (state.profile?.real_name || 'U')
-    .trim()
-    .charAt(0)
-    .toUpperCase();
-
-  menuRealName.textContent = state.profile?.real_name || '—';
-  menuEmail.textContent = state.profile?.email || '—';
-  menuUsername.textContent = state.profile?.username || '—';
-  menuRole.textContent = state.profile?.role || 'student';
-
-  adminCard.classList.toggle('hidden', state.profile?.role !== 'admin');
-
-  renderTopics();
+  updateOverallStats(progressRows || []);
 }
 
 function renderTopics() {
   topicsGrid.innerHTML = '';
 
   state.topics.forEach(topic => {
-    const box = document.createElement('div');
-    box.className = 'topic-card';
-
     const stats = state.topicProgress.get(topic.id) || {
       solved: 0,
       failed: 0,
@@ -435,10 +402,12 @@ function renderTopics() {
         ? 'Завершено'
         : `Доступно: ${Math.min(completed + 1, stats.total)}/${stats.total}`;
 
+    const box = document.createElement('div');
+    box.className = 'topic-card';
     box.innerHTML = `
       <div>
         <h3>${escapeHtml(topic.title)}</h3>
-        <p>${escapeHtml(topic.description || 'Тема по pre-algebra')}</p>
+        <p>${escapeHtml(topic.description || '')}</p>
       </div>
       <div class="topic-foot">
         <span class="small-badge">${stats.solved} solved · ${stats.failed} failed</span>
@@ -452,9 +421,26 @@ function renderTopics() {
   });
 }
 
-// =========================
-// OPEN TOPIC
-// =========================
+function updateOverallStats(progressRows) {
+  const solved = progressRows.filter(x => x.status === 'solved').length;
+  const failed = progressRows.filter(x => x.status === 'failed').length;
+  const all = solved + failed;
+
+  solvedCount.textContent = solved;
+  failedCount.textContent = failed;
+  allCount.textContent = all;
+
+  const totalQuestions = Array.from(state.topicProgress.values()).reduce(
+    (sum, t) => sum + (t.total || 0),
+    0
+  );
+
+  progressBadge.textContent = `${all} / ${totalQuestions}`;
+}
+
+/* =========================
+   OPEN TOPIC
+========================= */
 async function openTopic(topic) {
   try {
     state.currentTopic = topic;
@@ -476,23 +462,22 @@ async function openTopic(topic) {
       return;
     }
 
+    const userId = getUserId();
     const questionIds = state.currentQuestions.map(q => q.id);
 
     let progressRows = [];
     if (questionIds.length) {
       const { data: progressData, error: progressError } = await supabase
         .from('question_progress')
-        .select('question_id, status, attempts_used, last_selected_option')
-        .eq('user_id', state.profile.id)
+        .select('question_id, status')
+        .eq('user_id', userId)
         .in('question_id', questionIds);
 
       if (progressError) throw progressError;
       progressRows = progressData || [];
     }
 
-    const progressMap = new Map(
-      progressRows.map(row => [row.question_id, row])
-    );
+    const progressMap = new Map(progressRows.map(row => [row.question_id, row]));
 
     const firstOpenIndex = state.currentQuestions.findIndex(q => {
       const row = progressMap.get(q.id);
@@ -506,16 +491,17 @@ async function openTopic(topic) {
 
     await renderCurrentQuestion();
   } catch (err) {
-    console.error('openTopic error:', err);
+    console.error('OPEN TOPIC ERROR:', err);
     showToast(err.message || 'Не удалось открыть тему');
   }
 }
 
-// =========================
-// RENDER CURRENT QUESTION
-// =========================
+/* =========================
+   QUESTION RENDER
+========================= */
 async function renderCurrentQuestion() {
   try {
+    const userId = getUserId();
     const question = state.currentQuestions[state.currentQuestionIndex];
     if (!question) return;
 
@@ -526,7 +512,7 @@ async function renderCurrentQuestion() {
     const { data: progressRow, error: progressError } = await supabase
       .from('question_progress')
       .select('*')
-      .eq('user_id', state.profile.id)
+      .eq('user_id', userId)
       .eq('question_id', question.id)
       .maybeSingle();
 
@@ -534,13 +520,12 @@ async function renderCurrentQuestion() {
 
     state.currentProgressRow = progressRow || null;
 
-    const percentage =
+    const percent =
       ((state.currentQuestionIndex + 1) / state.currentQuestions.length) * 100;
-    questionProgressFill.style.width = `${percentage}%`;
+    questionProgressFill.style.width = `${percent}%`;
 
     questionMeta.textContent =
       `${state.currentTopic.title} · Задача ${state.currentQuestionIndex + 1} из ${state.currentQuestions.length}`;
-
     questionTitle.textContent = `Вопрос ${question.order_index}`;
     questionText.textContent = String(question.question_text ?? '');
 
@@ -557,6 +542,7 @@ async function renderCurrentQuestion() {
       const node = document.createElement('div');
       node.className = 'option';
       node.dataset.option = opt.key;
+
       node.innerHTML = `
         <div class="option-letter">${opt.key}</div>
         <div>${escapeHtml(opt.value)}</div>
@@ -570,10 +556,7 @@ async function renderCurrentQuestion() {
       }
 
       if (progressRow?.status === 'failed') {
-        if (opt.key === question.correct_option) {
-          node.classList.add('correct');
-        }
-
+        if (opt.key === question.correct_option) node.classList.add('correct');
         if (
           opt.key === progressRow.last_selected_option &&
           opt.key !== question.correct_option
@@ -617,35 +600,36 @@ async function renderCurrentQuestion() {
       showFeedback('info', attemptsText);
     }
   } catch (err) {
-    console.error('renderCurrentQuestion error:', err);
+    console.error('RENDER QUESTION ERROR:', err);
     showToast(err.message || 'Не удалось показать задачу');
   }
 }
 
-// =========================
-// SUBMIT ANSWER
-// =========================
+/* =========================
+   ANSWER SUBMIT
+========================= */
 async function handleSubmitAnswer() {
-  const question = state.currentQuestions[state.currentQuestionIndex];
-  const progressRow = state.currentProgressRow;
-
-  if (!question) return;
-
-  if (!state.selectedOption) {
-    showToast('Сначала выбери один вариант');
-    return;
-  }
-
-  if (progressRow?.status === 'solved' || progressRow?.status === 'failed') {
-    return;
-  }
-
-  const nextAttemptNumber = (progressRow?.attempts_used || 0) + 1;
-  const isCorrect = state.selectedOption === question.correct_option;
-
   try {
+    const userId = getUserId();
+    const question = state.currentQuestions[state.currentQuestionIndex];
+    const progressRow = state.currentProgressRow;
+
+    if (!question) return;
+
+    if (!state.selectedOption) {
+      showToast('Сначала выбери вариант');
+      return;
+    }
+
+    if (progressRow?.status === 'solved' || progressRow?.status === 'failed') {
+      return;
+    }
+
+    const nextAttemptNumber = (progressRow?.attempts_used || 0) + 1;
+    const isCorrect = state.selectedOption === question.correct_option;
+
     const { error: attemptError } = await supabase.from('attempts').insert({
-      user_id: state.profile.id,
+      user_id: userId,
       question_id: question.id,
       attempt_number: nextAttemptNumber,
       selected_option: state.selectedOption,
@@ -659,7 +643,7 @@ async function handleSubmitAnswer() {
         .from('question_progress')
         .upsert(
           {
-            user_id: state.profile.id,
+            user_id: userId,
             question_id: question.id,
             status: 'solved',
             attempts_used: nextAttemptNumber,
@@ -684,7 +668,7 @@ async function handleSubmitAnswer() {
         .from('question_progress')
         .upsert(
           {
-            user_id: state.profile.id,
+            user_id: userId,
             question_id: question.id,
             status: 'failed',
             attempts_used: nextAttemptNumber,
@@ -709,7 +693,7 @@ async function handleSubmitAnswer() {
         .from('question_progress')
         .upsert(
           {
-            user_id: state.profile.id,
+            user_id: userId,
             question_id: question.id,
             status: 'not_started',
             attempts_used: nextAttemptNumber,
@@ -731,14 +715,11 @@ async function handleSubmitAnswer() {
       await loadAdminStats();
     }
   } catch (err) {
-    console.error(err);
-    showToast(err.message || 'Ошибка при сохранении ответа');
+    console.error('SUBMIT ANSWER ERROR:', err);
+    showToast(err.message || 'Ошибка при отправке ответа');
   }
 }
 
-// =========================
-// NEXT QUESTION
-// =========================
 async function goToNextQuestion() {
   if (state.currentQuestionIndex < state.currentQuestions.length - 1) {
     state.currentQuestionIndex += 1;
@@ -749,26 +730,9 @@ async function goToNextQuestion() {
   }
 }
 
-// =========================
-// STATS
-// =========================
-function updateOverallStats(progressRows) {
-  const solved = progressRows.filter(x => x.status === 'solved').length;
-  const failed = progressRows.filter(x => x.status === 'failed').length;
-  const all = solved + failed;
-
-  solvedCount.textContent = solved;
-  failedCount.textContent = failed;
-  allCount.textContent = all;
-
-  const totalQuestions = Array.from(state.topicProgress.values()).reduce(
-    (sum, t) => sum + (t.total || 0),
-    0
-  );
-
-  progressBadge.textContent = `${all} / ${totalQuestions}`;
-}
-
+/* =========================
+   ADMIN
+========================= */
 async function loadAdminStats() {
   if (state.profile?.role !== 'admin') return;
 
@@ -819,12 +783,13 @@ async function loadAdminStats() {
       s.attempts += 1;
     });
 
-    const rows = Array.from(statsMap.values()).sort((a, b) => b.solved - a.solved);
     adminTableBody.innerHTML = '';
+
+    const rows = Array.from(statsMap.values()).sort((a, b) => b.solved - a.solved);
 
     if (!rows.length) {
       adminTableBody.innerHTML =
-        `<tr><td colspan="5" class="muted">Пока нет данных</td></tr>`;
+        '<tr><td colspan="5" class="muted">Пока нет данных</td></tr>';
       return;
     }
 
@@ -840,7 +805,7 @@ async function loadAdminStats() {
       adminTableBody.appendChild(tr);
     });
   } catch (err) {
-    console.error(err);
-    showToast(err.message || 'Не удалось загрузить admin-статистику');
+    console.error('ADMIN ERROR:', err);
+    showToast(err.message || 'Ошибка admin-панели');
   }
 }
