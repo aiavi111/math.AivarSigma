@@ -10,92 +10,91 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="app-shell">
+  <div class="app">
     <header class="topbar">
       <div class="brand">
-        <div class="brand-badge">∑</div>
+        <div class="brand-icon">∑</div>
         <div>
           <h1>Math School Platform</h1>
-          <p>5 тем · multiple choice · 2 попытки</p>
+          <p>5 тем • 2 попытки • рейтинг</p>
         </div>
       </div>
 
       <div id="userArea" class="user-area hidden">
-        <button id="profileBtn" class="profile-btn" title="Профиль">
+        <button id="profileBtn" class="profile-btn" type="button">
           <span id="profileInitial">U</span>
         </button>
 
         <div id="profileMenu" class="profile-menu hidden">
-          <div class="profile-menu-head">
+          <div class="profile-head">
             <strong id="menuRealName">—</strong>
             <span id="menuEmail">—</span>
           </div>
 
-          <div class="profile-menu-body">
+          <div class="profile-body">
             <div><span>Username:</span> <b id="menuUsername">—</b></div>
-            <div><span>Роль:</span> <b id="menuRole">student</b></div>
+            <div><span>Role:</span> <b id="menuRole">student</b></div>
           </div>
 
-          <button id="logoutBtn" class="danger-btn">Выйти</button>
+          <button id="logoutBtn" class="btn btn-dark" type="button">Выйти</button>
         </div>
       </div>
     </header>
 
-    <main class="main-grid">
-      <section class="left-panel">
-        <div id="authCard" class="card auth-card">
+    <main class="layout">
+      <aside class="left-col">
+        <section id="authCard" class="card">
           <div class="tabs">
             <button id="loginTab" class="tab active" type="button">Вход</button>
             <button id="registerTab" class="tab" type="button">Регистрация</button>
           </div>
 
-          <form id="loginForm" class="auth-form">
+          <form id="loginForm" class="form">
             <label>
               <span>Email</span>
-              <input type="email" id="loginEmail" placeholder="you@example.com" required />
+              <input id="loginEmail" type="email" placeholder="you@example.com" required />
             </label>
 
             <label>
               <span>Пароль</span>
-              <input type="password" id="loginPassword" placeholder="********" required />
+              <input id="loginPassword" type="password" placeholder="********" required />
             </label>
 
-            <button class="primary-btn" type="submit">Войти</button>
+            <button class="btn btn-primary" type="submit">Войти</button>
           </form>
 
-          <form id="registerForm" class="auth-form hidden">
+          <form id="registerForm" class="form hidden">
             <label>
               <span>Username</span>
-              <input type="text" id="regUsername" placeholder="aivar_09" minlength="3" required />
+              <input id="regUsername" type="text" placeholder="aivar_09" required />
             </label>
 
             <label>
               <span>Real name</span>
-              <input type="text" id="regRealName" placeholder="Айвар" minlength="2" required />
+              <input id="regRealName" type="text" placeholder="Айвар" required />
             </label>
 
             <label>
               <span>Email</span>
-              <input type="email" id="regEmail" placeholder="you@example.com" required />
+              <input id="regEmail" type="email" placeholder="you@example.com" required />
             </label>
 
             <label>
               <span>Пароль</span>
-              <input type="password" id="regPassword" placeholder="минимум 6 символов" minlength="6" required />
+              <input id="regPassword" type="password" placeholder="минимум 6 символов" minlength="6" required />
             </label>
 
-            <button class="primary-btn" type="submit">Создать аккаунт</button>
-            <p class="hint">После регистрации просто войди в аккаунт.</p>
+            <button class="btn btn-primary" type="submit">Создать аккаунт</button>
           </form>
-        </div>
+        </section>
 
-        <div id="progressCard" class="card stats-card hidden">
+        <section id="progressCard" class="card hidden">
           <div class="section-head">
             <h2>Мой прогресс</h2>
             <span id="progressBadge" class="badge">0 / 0</span>
           </div>
 
-          <div class="stats-row">
+          <div class="stats">
             <div class="stat-box">
               <span>Решено</span>
               <strong id="solvedCount">0</strong>
@@ -112,15 +111,15 @@
             </div>
           </div>
 
-          <p class="hint">
-            В каждой задаче только 2 попытки. После второй ошибки показывается правильный ответ.
+          <p class="muted">
+            На каждую задачу дается только 2 попытки.
           </p>
-        </div>
+        </section>
 
-        <div id="adminCard" class="card hidden">
+        <section id="adminCard" class="card hidden">
           <div class="section-head">
-            <h2>Admin panel</h2>
-            <button id="refreshAdminBtn" class="ghost-btn" type="button">Обновить</button>
+            <h2>Рейтинг</h2>
+            <button id="refreshAdminBtn" class="btn btn-ghost" type="button">Обновить</button>
           </div>
 
           <div class="table-wrap">
@@ -131,7 +130,7 @@
                   <th>Email</th>
                   <th>Решено</th>
                   <th>Провалено</th>
-                  <th>Всего попыток</th>
+                  <th>Попытки</th>
                 </tr>
               </thead>
               <tbody id="adminTableBody">
@@ -141,65 +140,57 @@
               </tbody>
             </table>
           </div>
-        </div>
-      </section>
+        </section>
+      </aside>
 
-      <section class="right-panel">
-        <div id="guestHero" class="card hero-card">
+      <section class="right-col">
+        <section id="guestHero" class="card hero">
           <h2>Платформа по математике</h2>
           <p>
-            После входа ученик увидит 5 тем. Внутри каждой темы задачи идут по порядку.
-            На каждую задачу дается только 2 попытки.
+            Зарегистрируйся, выбери тему и решай задачи по порядку.
+            После второй ошибки сайт покажет правильный ответ.
           </p>
+        </section>
 
-          <ul class="feature-list">
-            <li>Регистрация и вход</li>
-            <li>Сохранение прогресса</li>
-            <li>5 тем</li>
-            <li>Multiple choice</li>
-            <li>2 попытки на задачу</li>
-          </ul>
-        </div>
-
-        <div id="topicsCard" class="card hidden">
+        <section id="topicsCard" class="card hidden">
           <div class="section-head">
             <h2>Темы</h2>
             <span class="badge">5 разделов</span>
           </div>
 
           <div id="topicsGrid" class="topics-grid"></div>
-        </div>
+        </section>
 
-        <div id="questionCard" class="card hidden">
-          <div class="question-head">
-            <button id="backToTopicsBtn" class="ghost-btn" type="button">← Назад к темам</button>
+        <section id="questionCard" class="card hidden">
+          <div class="question-top">
+            <button id="backToTopicsBtn" class="btn btn-ghost" type="button">← Назад</button>
 
             <div>
-              <div id="questionMeta" class="question-meta">Тема · Задача</div>
+              <div id="questionMeta" class="meta">Тема · Задача</div>
               <h2 id="questionTitle">Задача</h2>
             </div>
           </div>
 
-          <div id="questionProgressBar" class="progress-line">
+          <div class="progress-line">
             <div id="questionProgressFill"></div>
           </div>
 
           <div id="questionText" class="question-text"></div>
-          <div id="optionsWrap" class="options-wrap"></div>
+          <div id="optionsWrap" class="options"></div>
 
-          <div class="question-actions">
-            <button id="submitAnswerBtn" class="primary-btn" type="button">Проверить ответ</button>
-            <button id="nextQuestionBtn" class="ghost-btn hidden" type="button">Следующая задача →</button>
+          <div class="actions">
+            <button id="submitAnswerBtn" class="btn btn-primary" type="button">Проверить</button>
+            <button id="nextQuestionBtn" class="btn btn-ghost hidden" type="button">Следующая →</button>
           </div>
 
           <div id="questionFeedback" class="feedback hidden"></div>
-        </div>
+        </section>
       </section>
     </main>
   </div>
 
   <div id="toast" class="toast hidden"></div>
 
-  <script type="module" src="script.js?v=3"></script>
+  <script type="module" src="script.js?v=10"></script>
 </body>
 </html>
